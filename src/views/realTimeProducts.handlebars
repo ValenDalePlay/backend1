@@ -1,0 +1,103 @@
+<div class="row">
+    <div class="col-md-4">
+        <h2>Agregar Producto</h2>
+        <form id="productForm">
+            <div class="mb-3">
+                <label for="title" class="form-label">Título</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">Descripción</label>
+                <textarea class="form-control" id="description" name="description" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="code" class="form-label">Código</label>
+                <input type="text" class="form-control" id="code" name="code" required>
+            </div>
+            <div class="mb-3">
+                <label for="price" class="form-label">Precio</label>
+                <input type="number" class="form-control" id="price" name="price" step="0.01" required>
+            </div>
+            <div class="mb-3">
+                <label for="stock" class="form-label">Stock</label>
+                <input type="number" class="form-control" id="stock" name="stock" required>
+            </div>
+            <div class="mb-3">
+                <label for="category" class="form-label">Categoría</label>
+                <input type="text" class="form-control" id="category" name="category" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Agregar Producto</button>
+        </form>
+    </div>
+
+    <div class="col-md-8">
+        <h2>Productos en Tiempo Real</h2>
+        <div class="row" id="productList">
+            {{#each products}}
+            <div class="col-md-6 mb-4 product-card" data-id="{{this.id}}">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{this.title}}</h5>
+                        <p class="card-text">{{this.description}}</p>
+                        <ul class="list-unstyled">
+                            <li><strong>Código:</strong> {{this.code}}</li>
+                            <li><strong>Precio:</strong> ${{this.price}}</li>
+                            <li><strong>Stock:</strong> {{this.stock}}</li>
+                            <li><strong>Categoría:</strong> {{this.category}}</li>
+                        </ul>
+                        <button class="btn btn-danger delete-product" data-id="{{this.id}}">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+    
+    // Formulario de productos
+    const productForm = document.getElementById('productForm');
+    const productList = document.getElementById('productList');
+
+    // Enviar nuevo producto
+    productForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(productForm);
+        const product = Object.fromEntries(formData.entries());
+        
+        socket.emit('addProduct', product);
+        productForm.reset();
+    });
+
+    // Eliminar producto
+    productList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('delete-product')) {
+            const productId = parseInt(e.target.dataset.id);
+            socket.emit('deleteProduct', productId);
+        }
+    });
+
+    // Recibir lista actualizada de productos
+    socket.on('updateProducts', (products) => {
+        productList.innerHTML = products.map(product => `
+            <div class="col-md-6 mb-4 product-card" data-id="${product.id}">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">${product.title}</h5>
+                        <p class="card-text">${product.description}</p>
+                        <ul class="list-unstyled">
+                            <li><strong>Código:</strong> ${product.code}</li>
+                            <li><strong>Precio:</strong> $${product.price}</li>
+                            <li><strong>Stock:</strong> ${product.stock}</li>
+                            <li><strong>Categoría:</strong> ${product.category}</li>
+                        </ul>
+                        <button class="btn btn-danger delete-product" data-id="${product.id}">Eliminar</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    });
+</script> 
