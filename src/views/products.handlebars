@@ -4,120 +4,299 @@
     <title>Productos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        .products-header {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .filters-sidebar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 1rem;
+        }
+
+        .filters-sidebar .form-label {
+            font-weight: 600;
+            color: var(--dark-text);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .filters-sidebar .form-select,
+        .filters-sidebar .form-control {
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            padding: 0.75rem;
+        }
+
+        .filters-sidebar .form-select:focus,
+        .filters-sidebar .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+        }
+
+        .filters-sidebar .filter-section {
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .filters-sidebar .filter-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .discount-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: var(--warning-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 1;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .stock-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1;
+        }
+
         .card {
             height: 100%;
             display: flex;
             flex-direction: column;
         }
+
         .card-img-top {
-            height: 200px; /* Altura fija para todas las imágenes */
-            object-fit: contain; /* Mantiene la proporción sin recortar */
+            height: 200px;
+            object-fit: contain;
             padding: 1rem;
+            background: #f8f9fa;
         }
+
         .card-body {
-            flex: 1;
             display: flex;
             flex-direction: column;
+            padding: 1.5rem;
         }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            height: 2.4rem;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
         .card-text {
-            flex-grow: 1;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            height: 3.6rem;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
         }
-        .btn-container {
+
+        .price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            background: var(--light-bg);
+            color: var(--primary-color);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .card-footer {
+            background: none;
+            border-top: none;
+            padding: 1rem 1.5rem;
             margin-top: auto;
+        }
+
+        .range-values {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .filter-reset {
+            color: var(--warning-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .filter-reset:hover {
+            color: var(--primary-color);
         }
     </style>
 </head>
 <body>
-    <div class="container mt-4">
-        <h1>Lista de Productos</h1>
-        
-        <!-- Filtros -->
-        <div class="row mb-4">
-            <div class="col-md-8">
-                <form id="filterForm" class="row g-3">
-                    <div class="col-md-3">
-                        <select name="category" class="form-select">
-                            <option value="">Todas las categorías</option>
-                            {{#each categories}}
-                            <option value="{{this}}" {{#if (eq this ../selectedCategory)}}selected{{/if}}>{{this}}</option>
-                            {{/each}}
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <select name="sort" class="form-select">
-                            <option value="">Sin ordenar</option>
-                            <option value="asc" {{#if (eq sort "asc")}}selected{{/if}}>Precio: Menor a Mayor</option>
-                            <option value="desc" {{#if (eq sort "desc")}}selected{{/if}}>Precio: Mayor a Menor</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-primary">Filtrar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+    <div class="products-header">
+        <h1><i class="bi bi-shop me-2"></i>Nuestros Productos</h1>
+        <p class="mb-0">Descubre nuestra selección de productos tecnológicos de alta calidad</p>
+    </div>
 
-        <!-- Lista de Productos -->
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-            {{#each products}}
-            <div class="col">
-                <div class="card h-100">
-                    {{#if thumbnails.[0]}}
-                    <img src="{{thumbnails.[0]}}" class="card-img-top" alt="{{title}}">
-                    {{/if}}
-                    <div class="card-body">
-                        <h5 class="card-title">{{title}}</h5>
-                        <p class="card-text">{{description}}</p>
-                        <div class="mt-auto">
-                            <p class="card-text"><strong>Precio: ${{price}}</strong></p>
-                            <p class="card-text">Stock: {{stock}}</p>
-                            <p class="card-text">Categoría: {{category}}</p>
-                            <div class="btn-container">
-                                <a href="/products/{{_id}}" class="btn btn-info">Ver Detalles</a>
-                                <button class="btn btn-success add-to-cart" data-product-id="{{_id}}">
-                                    Agregar al Carrito
-                                </button>
+    <div class="container">
+        <div class="row">
+            <!-- Filtros (Barra lateral) -->
+            <div class="col-md-3 mb-4">
+                <div class="filters-sidebar">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="mb-0">Filtros</h4>
+                        <a href="/products" class="filter-reset">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i>Resetear
+                        </a>
+                    </div>
+                    <form id="filterForm">
+                        <div class="filter-section">
+                            <label class="form-label">
+                                <i class="bi bi-tag me-2"></i>Categoría
+                            </label>
+                            <select name="category" class="form-select">
+                                <option value="">Todas las categorías</option>
+                                {{#each categories}}
+                                <option value="{{this}}" {{#if (eq this ../selectedCategory)}}selected{{/if}}>{{this}}</option>
+                                {{/each}}
+                            </select>
+                        </div>
+
+                        <div class="filter-section">
+                            <label class="form-label">
+                                <i class="bi bi-sort-down me-2"></i>Ordenar por
+                            </label>
+                            <select name="sort" class="form-select">
+                                <option value="">Sin ordenar</option>
+                                <option value="asc" {{#if (eq sort "asc")}}selected{{/if}}>Precio: Menor a Mayor</option>
+                                <option value="desc" {{#if (eq sort "desc")}}selected{{/if}}>Precio: Mayor a Menor</option>
+                                <option value="newest" {{#if (eq sort "newest")}}selected{{/if}}>Más recientes</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-funnel me-2"></i>Aplicar Filtros
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Lista de Productos -->
+            <div class="col-md-9">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="mb-0">Catálogo</h2>
+                    <p class="text-muted mb-0">{{products.length}} productos encontrados</p>
+                </div>
+
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+                    {{#each products}}
+                    <div class="col">
+                        <div class="card">
+                            {{#if onSale}}
+                            <div class="discount-badge">
+                                <i class="bi bi-tag-fill me-1"></i>20% OFF
+                            </div>
+                            {{/if}}
+                            
+                            {{#if (gt stock 0)}}
+                            <div class="stock-badge">
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>En Stock
+                                </span>
+                            </div>
+                            {{else}}
+                            <div class="stock-badge">
+                                <span class="badge bg-danger">
+                                    <i class="bi bi-x-circle me-1"></i>Sin Stock
+                                </span>
+                            </div>
+                            {{/if}}
+                            
+                            {{#if thumbnails.[0]}}
+                            <img src="{{thumbnails.[0]}}" class="card-img-top" alt="{{title}}">
+                            {{else}}
+                            <div class="card-img-top d-flex align-items-center justify-content-center">
+                                <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                            </div>
+                            {{/if}}
+                            
+                            <div class="card-body">
+                                <span class="category-badge">
+                                    <i class="bi bi-tag me-1"></i>{{category}}
+                                </span>
+                                <h5 class="card-title">{{title}}</h5>
+                                <p class="card-text">{{description}}</p>
+                                <div class="price">${{price}}</div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="d-flex gap-2">
+                                    <a href="/products/{{_id}}" class="btn btn-outline-primary flex-grow-1">
+                                        <i class="bi bi-eye me-1"></i>Ver Detalles
+                                    </a>
+                                    {{#if stock}}
+                                    <button class="btn btn-primary add-to-cart" data-product-id="{{_id}}">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </button>
+                                    {{else}}
+                                    <button class="btn btn-secondary" disabled>
+                                        <i class="bi bi-cart-x"></i>
+                                    </button>
+                                    {{/if}}
+                                </div>
                             </div>
                         </div>
                     </div>
+                    {{/each}}
                 </div>
             </div>
-            {{/each}}
         </div>
-
-        <!-- Paginación -->
-        <nav aria-label="Page navigation" class="mt-4">
-            <ul class="pagination justify-content-center">
-                {{#if hasPrevPage}}
-                <li class="page-item">
-                    <a class="page-link" href="{{prevLink}}">&laquo; Anterior</a>
-                </li>
-                {{/if}}
-                
-                <li class="page-item disabled">
-                    <span class="page-link">Página {{page}} de {{totalPages}}</span>
-                </li>
-
-                {{#if hasNextPage}}
-                <li class="page-item">
-                    <a class="page-link" href="{{nextLink}}">Siguiente &raquo;</a>
-                </li>
-                {{/if}}
-            </ul>
-        </nav>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Agregar al carrito
+        // Agregar al carrito con animación y feedback
         document.querySelectorAll('.add-to-cart').forEach(button => {
             button.addEventListener('click', async (e) => {
-                const productId = e.target.dataset.productId;
+                const productId = e.target.closest('.add-to-cart').dataset.productId;
+                const button = e.target.closest('.add-to-cart');
+                
                 try {
-                    // Aquí deberías tener el ID del carrito actual
+                    button.disabled = true;
+                    button.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+                    
                     let cartId = localStorage.getItem('cartId');
                     if (!cartId) {
-                        // Si no hay carrito, crear uno nuevo
                         const response = await fetch('/api/carts', {
                             method: 'POST'
                         });
@@ -126,21 +305,57 @@
                         localStorage.setItem('cartId', cartId);
                     }
                     
-                    // Agregar producto al carrito
                     const response = await fetch(`/api/carts/${cartId}/product/${productId}`, {
                         method: 'POST'
                     });
                     
                     if (response.ok) {
-                        alert('Producto agregado al carrito');
+                        button.classList.add('btn-success');
+                        button.innerHTML = '<i class="bi bi-check-lg"></i>';
+                        setTimeout(() => {
+                            button.classList.remove('btn-success');
+                            button.innerHTML = '<i class="bi bi-cart-plus"></i>';
+                            button.disabled = false;
+                        }, 1500);
+                        
+                        window.updateCartDisplay();
                     } else {
                         throw new Error('Error al agregar al carrito');
                     }
                 } catch (error) {
-                    alert('Error al agregar el producto al carrito');
+                    button.classList.add('btn-danger');
+                    button.innerHTML = '<i class="bi bi-x-lg"></i>';
+                    setTimeout(() => {
+                        button.classList.remove('btn-danger');
+                        button.innerHTML = '<i class="bi bi-cart-plus"></i>';
+                        button.disabled = false;
+                    }, 1500);
+                    
                     console.error(error);
                 }
             });
+        });
+
+        // Manejar filtros
+        document.getElementById('filterForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const params = new URLSearchParams(window.location.search);
+            
+            formData.forEach((value, key) => {
+                if (value) {
+                    params.set(key, value);
+                } else {
+                    params.delete(key);
+                }
+            });
+            
+            // Mantener la página actual si existe
+            if (!params.has('page')) {
+                params.set('page', '1');
+            }
+            
+            window.location.href = `/products?${params.toString()}`;
         });
     </script>
 </body>

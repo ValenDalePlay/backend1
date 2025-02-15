@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ofertas Especiales</title>
+    <style>
+        .offers-header {
+            background: linear-gradient(45deg, var(--warning-color), var(--primary-color));
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .timer {
+            background: rgba(255,255,255,0.2);
+            padding: 1rem;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+
+        .discount-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: var(--warning-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            z-index: 1;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .original-price {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 1.2rem;
+        }
+
+        .current-price {
+            font-size: 2rem;
+            color: var(--warning-color);
+            font-weight: bold;
+        }
+
+        .savings {
+            background: var(--light-bg);
+            padding: 0.5rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+            color: var(--warning-color);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="offers-header">
+        <h1><i class="bi bi-lightning-fill me-2"></i>¡Ofertas Especiales!</h1>
+        <p class="mb-0">No te pierdas estas increíbles ofertas por tiempo limitado</p>
+        <div class="timer">
+            <i class="bi bi-clock me-2"></i>Ofertas válidas por tiempo limitado
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {{#each products}}
+        <div class="col">
+            <div class="card h-100">
+                <div class="discount-badge">
+                    <i class="bi bi-tag-fill me-1"></i>{{discount}}
+                </div>
+                
+                {{#if thumbnails.[0]}}
+                <img src="{{thumbnails.[0]}}" class="card-img-top" alt="{{title}}">
+                {{else}}
+                <div class="card-img-top d-flex align-items-center justify-content-center">
+                    <i class="bi bi-image text-muted" style="font-size: 4rem;"></i>
+                </div>
+                {{/if}}
+                
+                <div class="card-body">
+                    <span class="category-badge">
+                        <i class="bi bi-tag me-1"></i>{{category}}
+                    </span>
+                    <h5 class="card-title">{{title}}</h5>
+                    <p class="card-text">{{description}}</p>
+                    
+                    <div class="pricing text-center mb-3">
+                        <div class="original-price">${{originalPrice}}</div>
+                        <div class="current-price">${{price}}</div>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <a href="/products/{{_id}}" class="btn btn-outline-primary flex-grow-1">
+                            <i class="bi bi-eye me-1"></i>Ver Detalles
+                        </a>
+                        {{#if stock}}
+                        <button class="btn btn-primary add-to-cart" data-product-id="{{_id}}">
+                            <i class="bi bi-cart-plus"></i>
+                        </button>
+                        {{else}}
+                        <button class="btn btn-secondary" disabled>
+                            <i class="bi bi-cart-x"></i>
+                        </button>
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+
+    <script>
+        // Agregar al carrito con animación y feedback
+        document.querySelectorAll('.add-to-cart').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const productId = e.target.closest('.add-to-cart').dataset.productId;
+                const button = e.target.closest('.add-to-cart');
+                
+                try {
+                    button.disabled = true;
+                    button.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+                    
+                    let cartId = localStorage.getItem('cartId');
+                    if (!cartId) {
+                        const response = await fetch('/api/carts', {
+                            method: 'POST'
+                        });
+                        const data = await response.json();
+                        cartId = data.payload._id;
+                        localStorage.setItem('cartId', cartId);
+                    }
+                    
+                    const response = await fetch(`/api/carts/${cartId}/product/${productId}`, {
+                        method: 'POST'
+                    });
+                    
+                    if (response.ok) {
+                        button.classList.add('btn-success');
+                        button.innerHTML = '<i class="bi bi-check-lg"></i>';
+                        setTimeout(() => {
+                            button.classList.remove('btn-success');
+                            button.innerHTML = '<i class="bi bi-cart-plus"></i>';
+                            button.disabled = false;
+                        }, 1500);
+                        
+                        window.updateCartDisplay();
+                    } else {
+                        throw new Error('Error al agregar al carrito');
+                    }
+                } catch (error) {
+                    button.classList.add('btn-danger');
+                    button.innerHTML = '<i class="bi bi-x-lg"></i>';
+                    setTimeout(() => {
+                        button.classList.remove('btn-danger');
+                        button.innerHTML = '<i class="bi bi-cart-plus"></i>';
+                        button.disabled = false;
+                    }, 1500);
+                    
+                    console.error(error);
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

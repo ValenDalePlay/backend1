@@ -21,11 +21,34 @@ const hbs = exphbs.create({
     helpers: {
         eq: (v1, v2) => v1 === v2,
         gt: (v1, v2) => v1 > v2,
-        multiply: (v1, v2) => v1 * v2,
+        multiply: (v1, v2) => Number((v1 * v2).toFixed(2)),
+        subtract: (v1, v2) => v1 - v2,
         cartTotal: (products) => {
-            return products.reduce((total, item) => {
+            const total = products.reduce((total, item) => {
+                if (!item.product) return total;
+                const price = item.product.onSale ? item.product.finalPrice : item.product.price;
+                return total + (price * item.quantity);
+            }, 0);
+            return Number(total.toFixed(2));
+        },
+        cartOriginalTotal: (products) => {
+            const total = products.reduce((total, item) => {
+                if (!item.product) return total;
                 return total + (item.product.price * item.quantity);
             }, 0);
+            return Number(total.toFixed(2));
+        },
+        cartSavings: (products) => {
+            const originalTotal = products.reduce((total, item) => {
+                if (!item.product) return total;
+                return total + (item.product.price * item.quantity);
+            }, 0);
+            const finalTotal = products.reduce((total, item) => {
+                if (!item.product) return total;
+                const price = item.product.onSale ? item.product.finalPrice : item.product.price;
+                return total + (price * item.quantity);
+            }, 0);
+            return Number((originalTotal - finalTotal).toFixed(2));
         }
     },
     // Permitir acceso a todas las propiedades

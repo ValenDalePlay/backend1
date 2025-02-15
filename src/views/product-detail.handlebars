@@ -6,22 +6,32 @@
 </head>
 <body>
     <div class="container mt-4">
-        <nav aria-label="breadcrumb">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/products">Productos</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{product.title}}</li>
+                <li class="breadcrumb-item">
+                    <a href="/products" class="text-decoration-none">
+                        <i class="bi bi-house me-1"></i>Productos
+                    </a>
+                </li>
+                <li class="breadcrumb-item">
+                    <span class="text-muted">{{product.category}}</span>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                    {{product.title}}
+                </li>
             </ol>
         </nav>
 
         <div class="row">
             <!-- Imágenes del producto -->
-            <div class="col-md-6">
+            <div class="col-md-6 mb-4">
                 {{#if product.thumbnails.[0]}}
-                <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div id="productCarousel" class="carousel slide card" data-bs-ride="carousel">
                     <div class="carousel-inner">
                         {{#each product.thumbnails}}
                         <div class="carousel-item {{#if @first}}active{{/if}}">
-                            <img src="{{this}}" class="d-block w-100" alt="{{../product.title}}">
+                            <img src="{{this}}" class="d-block w-100" alt="{{../product.title}}" style="height: 400px; object-fit: contain; background: var(--light-bg); padding: 2rem;">
                         </div>
                         {{/each}}
                     </div>
@@ -37,44 +47,89 @@
                     {{/if}}
                 </div>
                 {{else}}
-                <div class="text-center">
-                    <img src="/img/no-image.jpg" class="img-fluid" alt="Sin imagen">
+                <div class="card d-flex align-items-center justify-content-center" style="height: 400px;">
+                    <i class="bi bi-image text-muted" style="font-size: 5rem;"></i>
                 </div>
                 {{/if}}
             </div>
 
             <!-- Información del producto -->
             <div class="col-md-6">
-                <h1 class="mb-4">{{product.title}}</h1>
-                <p class="lead">{{product.description}}</p>
+                <div class="mb-4">
+                    <span class="category-badge mb-2">
+                        <i class="bi bi-tag me-1"></i>{{product.category}}
+                    </span>
+                    <h1 class="display-5 mb-3">{{product.title}}</h1>
+                    <p class="lead mb-4">{{product.description}}</p>
+                </div>
                 
-                <div class="card mb-4">
+                <div class="card mb-4 border-0 bg-light">
                     <div class="card-body">
-                        <h5 class="card-title">Detalles del Producto</h5>
-                        <ul class="list-unstyled">
-                            <li><strong>Código:</strong> {{product.code}}</li>
-                            <li><strong>Categoría:</strong> {{product.category}}</li>
-                            <li><strong>Stock:</strong> {{product.stock}} unidades</li>
-                            <li><strong>Estado:</strong> {{#if product.status}}Disponible{{else}}No disponible{{/if}}</li>
-                        </ul>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-box-seam me-2 text-muted"></i>
+                                    <div>
+                                        <small class="text-muted d-block">Stock</small>
+                                        <strong>{{product.stock}} unidades</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-upc me-2 text-muted"></i>
+                                    <div>
+                                        <small class="text-muted d-block">Código</small>
+                                        <strong>{{product.code}}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-check-circle me-2 {{#if product.status}}text-success{{else}}text-danger{{/if}}"></i>
+                                    <div>
+                                        <small class="text-muted d-block">Estado</small>
+                                        <strong>{{#if product.status}}Disponible{{else}}No disponible{{/if}}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="pricing-box p-4 bg-light rounded">
-                    <h2 class="price mb-3">${{product.price}}</h2>
+                <div class="pricing-box p-4 bg-white rounded-3 shadow-sm mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="price display-4 mb-0">${{product.price}}</div>
+                        {{#if product.status}}
+                            {{#if product.stock}}
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle me-1"></i>En Stock
+                            </span>
+                            {{else}}
+                            <span class="badge bg-danger">
+                                <i class="bi bi-x-circle me-1"></i>Sin Stock
+                            </span>
+                            {{/if}}
+                        {{else}}
+                        <span class="badge bg-secondary">
+                            <i class="bi bi-dash-circle me-1"></i>No Disponible
+                        </span>
+                        {{/if}}
+                    </div>
+                    
                     {{#if product.status}}
                         {{#if product.stock}}
-                        <button class="btn btn-primary btn-lg add-to-cart" data-product-id="{{product._id}}">
-                            Agregar al Carrito
+                        <button class="btn btn-primary btn-lg w-100 add-to-cart" data-product-id="{{product._id}}">
+                            <i class="bi bi-cart-plus me-2"></i>Agregar al Carrito
                         </button>
                         {{else}}
-                        <button class="btn btn-secondary btn-lg" disabled>
-                            Sin Stock
+                        <button class="btn btn-secondary btn-lg w-100" disabled>
+                            <i class="bi bi-cart-x me-2"></i>Sin Stock
                         </button>
                         {{/if}}
                     {{else}}
-                    <button class="btn btn-secondary btn-lg" disabled>
-                        Producto No Disponible
+                    <button class="btn btn-secondary btn-lg w-100" disabled>
+                        <i class="bi bi-dash-circle me-2"></i>No Disponible
                     </button>
                     {{/if}}
                 </div>
@@ -84,10 +139,15 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Agregar al carrito
+        // Agregar al carrito con animación y feedback
         document.querySelector('.add-to-cart')?.addEventListener('click', async (e) => {
-            const productId = e.target.dataset.productId;
+            const button = e.target.closest('.add-to-cart');
+            const productId = button.dataset.productId;
+            
             try {
+                button.disabled = true;
+                button.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Agregando...';
+                
                 // Obtener o crear carrito
                 let cartId = localStorage.getItem('cartId');
                 if (!cartId) {
@@ -105,12 +165,34 @@
                 });
                 
                 if (response.ok) {
-                    alert('Producto agregado al carrito');
+                    button.classList.remove('btn-primary');
+                    button.classList.add('btn-success');
+                    button.innerHTML = '<i class="bi bi-check-lg me-2"></i>¡Agregado!';
+                    
+                    // Actualizar el carrito
+                    window.updateCartDisplay();
+                    
+                    setTimeout(() => {
+                        button.classList.remove('btn-success');
+                        button.classList.add('btn-primary');
+                        button.innerHTML = '<i class="bi bi-cart-plus me-2"></i>Agregar al Carrito';
+                        button.disabled = false;
+                    }, 2000);
                 } else {
                     throw new Error('Error al agregar al carrito');
                 }
             } catch (error) {
-                alert('Error al agregar el producto al carrito');
+                button.classList.remove('btn-primary');
+                button.classList.add('btn-danger');
+                button.innerHTML = '<i class="bi bi-x-lg me-2"></i>Error';
+                
+                setTimeout(() => {
+                    button.classList.remove('btn-danger');
+                    button.classList.add('btn-primary');
+                    button.innerHTML = '<i class="bi bi-cart-plus me-2"></i>Agregar al Carrito';
+                    button.disabled = false;
+                }, 2000);
+                
                 console.error(error);
             }
         });

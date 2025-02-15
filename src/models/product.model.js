@@ -34,9 +34,27 @@ const productSchema = new mongoose.Schema({
     thumbnails: {
         type: [String],
         default: []
+    },
+    onSale: {
+        type: Boolean,
+        default: false
+    },
+    discountPercentage: {
+        type: Number,
+        default: 0
+    },
+    finalPrice: {
+        type: Number,
+        get: function() {
+            if (this.onSale && this.discountPercentage > 0) {
+                return Math.round(this.price * (1 - this.discountPercentage));
+            }
+            return this.price;
+        }
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    toJSON: { getters: true }
 });
 
 productSchema.plugin(mongoosePaginate);
