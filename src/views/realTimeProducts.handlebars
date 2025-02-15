@@ -1,103 +1,206 @@
-<div class="row">
-    <div class="col-md-4">
-        <h2>Agregar Producto</h2>
-        <form id="productForm">
-            <div class="mb-3">
-                <label for="title" class="form-label">Título</label>
-                <input type="text" class="form-control" id="title" name="title" required>
-            </div>
-            <div class="mb-3">
-                <label for="description" class="form-label">Descripción</label>
-                <textarea class="form-control" id="description" name="description" required></textarea>
-            </div>
-            <div class="mb-3">
-                <label for="code" class="form-label">Código</label>
-                <input type="text" class="form-control" id="code" name="code" required>
-            </div>
-            <div class="mb-3">
-                <label for="price" class="form-label">Precio</label>
-                <input type="number" class="form-control" id="price" name="price" step="0.01" required>
-            </div>
-            <div class="mb-3">
-                <label for="stock" class="form-label">Stock</label>
-                <input type="number" class="form-control" id="stock" name="stock" required>
-            </div>
-            <div class="mb-3">
-                <label for="category" class="form-label">Categoría</label>
-                <input type="text" class="form-control" id="category" name="category" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Agregar Producto</button>
-        </form>
-    </div>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Productos en Tiempo Real</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-img-top {
+            height: 200px;
+            object-fit: contain;
+            padding: 1rem;
+        }
+        .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-text {
+            flex-grow: 1;
+        }
+        .btn-container {
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Productos en Tiempo Real</h1>
+            <a href="/products" class="btn btn-outline-primary">Ver Vista Normal</a>
+        </div>
 
-    <div class="col-md-8">
-        <h2>Productos en Tiempo Real</h2>
-        <div class="row" id="productList">
+        <!-- Formulario para agregar producto -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Agregar Nuevo Producto</h5>
+                <form id="productForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Título</label>
+                            <input type="text" class="form-control" name="title" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Código</label>
+                            <input type="text" class="form-control" name="code" required>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" name="description" required></textarea>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Precio</label>
+                            <input type="number" class="form-control" name="price" step="0.01" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Stock</label>
+                            <input type="number" class="form-control" name="stock" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Categoría</label>
+                            <input type="text" class="form-control" name="category" required>
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">URL de la imagen</label>
+                            <input type="url" class="form-control" name="thumbnails">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Agregar Producto</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lista de Productos -->
+        <div class="row row-cols-1 row-cols-md-3 g-4" id="productList">
             {{#each products}}
-            <div class="col-md-6 mb-4 product-card" data-id="{{this.id}}">
-                <div class="card">
+            <div class="col">
+                <div class="card h-100">
+                    {{#if thumbnails.[0]}}
+                    <img src="{{thumbnails.[0]}}" class="card-img-top" alt="{{title}}">
+                    {{/if}}
                     <div class="card-body">
-                        <h5 class="card-title">{{this.title}}</h5>
-                        <p class="card-text">{{this.description}}</p>
-                        <ul class="list-unstyled">
-                            <li><strong>Código:</strong> {{this.code}}</li>
-                            <li><strong>Precio:</strong> ${{this.price}}</li>
-                            <li><strong>Stock:</strong> {{this.stock}}</li>
-                            <li><strong>Categoría:</strong> {{this.category}}</li>
-                        </ul>
-                        <button class="btn btn-danger delete-product" data-id="{{this.id}}">Eliminar</button>
+                        <h5 class="card-title">{{title}}</h5>
+                        <p class="card-text">{{description}}</p>
+                        <div class="mt-auto">
+                            <p class="card-text"><strong>Precio: ${{price}}</strong></p>
+                            <p class="card-text">Stock: {{stock}}</p>
+                            <p class="card-text">Categoría: {{category}}</p>
+                            <div class="btn-container">
+                                <button class="btn btn-danger delete-product" data-product-id="{{_id}}">
+                                    Eliminar
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             {{/each}}
         </div>
     </div>
-</div>
 
-<script src="/socket.io/socket.io.js"></script>
-<script>
-    const socket = io();
-    
-    // Formulario de productos
-    const productForm = document.getElementById('productForm');
-    const productList = document.getElementById('productList');
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
 
-    // Enviar nuevo producto
-    productForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const formData = new FormData(productForm);
-        const product = Object.fromEntries(formData.entries());
-        
-        socket.emit('addProduct', product);
-        productForm.reset();
-    });
-
-    // Eliminar producto
-    productList.addEventListener('click', (e) => {
-        if (e.target.classList.contains('delete-product')) {
-            const productId = parseInt(e.target.dataset.id);
-            socket.emit('deleteProduct', productId);
-        }
-    });
-
-    // Recibir lista actualizada de productos
-    socket.on('updateProducts', (products) => {
-        productList.innerHTML = products.map(product => `
-            <div class="col-md-6 mb-4 product-card" data-id="${product.id}">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">${product.title}</h5>
-                        <p class="card-text">${product.description}</p>
-                        <ul class="list-unstyled">
-                            <li><strong>Código:</strong> ${product.code}</li>
-                            <li><strong>Precio:</strong> $${product.price}</li>
-                            <li><strong>Stock:</strong> ${product.stock}</li>
-                            <li><strong>Categoría:</strong> ${product.category}</li>
-                        </ul>
-                        <button class="btn btn-danger delete-product" data-id="${product.id}">Eliminar</button>
+        // Actualizar lista de productos
+        socket.on('updateProducts', (products) => {
+            const productList = document.getElementById('productList');
+            productList.innerHTML = products.map(product => `
+                <div class="col">
+                    <div class="card h-100">
+                        ${product.thumbnails && product.thumbnails[0] 
+                            ? `<img src="${product.thumbnails[0]}" class="card-img-top" alt="${product.title}">` 
+                            : ''}
+                        <div class="card-body">
+                            <h5 class="card-title">${product.title}</h5>
+                            <p class="card-text">${product.description}</p>
+                            <div class="mt-auto">
+                                <p class="card-text"><strong>Precio: $${product.price}</strong></p>
+                                <p class="card-text">Stock: ${product.stock}</p>
+                                <p class="card-text">Categoría: ${product.category}</p>
+                                <div class="btn-container">
+                                    <button class="btn btn-danger delete-product" data-product-id="${product._id}">
+                                        Eliminar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `).join('');
-    });
-</script> 
+            `).join('');
+
+            // Reactivar los botones de eliminar
+            setupDeleteButtons();
+        });
+
+        // Manejar el formulario de nuevo producto
+        document.getElementById('productForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const productData = {
+                title: formData.get('title'),
+                description: formData.get('description'),
+                code: formData.get('code'),
+                price: Number(formData.get('price')),
+                status: true,
+                stock: Number(formData.get('stock')),
+                category: formData.get('category'),
+                thumbnails: [formData.get('thumbnails')].filter(Boolean)
+            };
+
+            try {
+                const response = await fetch('/api/products', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(productData)
+                });
+
+                if (response.ok) {
+                    e.target.reset();
+                    const result = await response.json();
+                    socket.emit('productCreated');
+                } else {
+                    throw new Error('Error al crear el producto');
+                }
+            } catch (error) {
+                alert('Error al crear el producto');
+                console.error(error);
+            }
+        });
+
+        // Configurar botones de eliminar
+        function setupDeleteButtons() {
+            document.querySelectorAll('.delete-product').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const productId = e.target.dataset.productId;
+                    if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                        try {
+                            const response = await fetch(`/api/products/${productId}`, {
+                                method: 'DELETE'
+                            });
+
+                            if (response.ok) {
+                                socket.emit('productDeleted');
+                            } else {
+                                throw new Error('Error al eliminar el producto');
+                            }
+                        } catch (error) {
+                            alert('Error al eliminar el producto');
+                            console.error(error);
+                        }
+                    }
+                });
+            });
+        }
+
+        // Configurar botones iniciales
+        setupDeleteButtons();
+    </script>
+</body>
+</html> 

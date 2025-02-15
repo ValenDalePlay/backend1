@@ -1,40 +1,86 @@
 const express = require('express');
 const router = express.Router();
-const CartManager = require('../managers/CartManager');
-const path = require('path');
+const CartDAO = require('../dao/mongodb/cart.dao');
 
-const cartManager = new CartManager(path.join(__dirname, '../data/carts.json'));
-
-// POST /api/carts/
+// POST /api/carts
 router.post('/', async (req, res) => {
     try {
-        const newCart = await cartManager.createCart();
-        res.status(201).json(newCart);
+        const cart = await CartDAO.createCart();
+        res.status(201).json({ status: 'success', payload: cart });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(400).json({ status: 'error', error: error.message });
     }
 });
 
 // GET /api/carts/:cid
 router.get('/:cid', async (req, res) => {
     try {
-        const cartId = parseInt(req.params.cid);
-        const cart = await cartManager.getCartById(cartId);
-        res.json(cart.products);
+        const cart = await CartDAO.getCartById(req.params.cid);
+        res.json({ status: 'success', payload: cart });
     } catch (error) {
-        res.status(404).json({ error: error.message });
+        res.status(404).json({ status: 'error', error: error.message });
     }
 });
 
 // POST /api/carts/:cid/product/:pid
 router.post('/:cid/product/:pid', async (req, res) => {
     try {
-        const cartId = parseInt(req.params.cid);
-        const productId = parseInt(req.params.pid);
-        const updatedCart = await cartManager.addProductToCart(cartId, productId);
-        res.json(updatedCart);
+        const cart = await CartDAO.addProductToCart(req.params.cid, req.params.pid);
+        res.json({ status: 'success', payload: cart });
     } catch (error) {
-        res.status(404).json({ error: error.message });
+        res.status(400).json({ status: 'error', error: error.message });
+    }
+});
+
+// DELETE /api/carts/:cid/products/:pid
+router.delete('/:cid/products/:pid', async (req, res) => {
+    try {
+        const cart = await CartDAO.removeProductFromCart(req.params.cid, req.params.pid);
+        res.json({ status: 'success', payload: cart });
+    } catch (error) {
+        res.status(404).json({ status: 'error', error: error.message });
+    }
+});
+
+// PUT /api/carts/:cid
+router.put('/:cid', async (req, res) => {
+    try {
+        const cart = await CartDAO.updateCart(req.params.cid, req.body.products);
+        res.json({ status: 'success', payload: cart });
+    } catch (error) {
+        res.status(400).json({ status: 'error', error: error.message });
+    }
+});
+
+// PUT /api/carts/:cid/products/:pid
+router.put('/:cid/products/:pid', async (req, res) => {
+    try {
+        const { quantity } = req.body;
+        if (!quantity || quantity < 1) {
+            return res.status(400).json({ 
+                status: 'error', 
+                error: 'La cantidad debe ser un número positivo' 
+            });
+        }
+
+        const cart = await CartDAO.updateProductQuantity(
+            req.params.cid,
+            req.params.pid,
+            quantity
+        );
+        res.json({ status: 'success', payload: cart });
+    } catch (error) {
+        res.status(400).json({ status: 'error', error: error.message });
+    }
+});
+
+// DELETE /api/carts/:cid
+router.delete('/:cid', async (req, res) => {
+    try {
+        const cart = await CartDAO.clearCart(req.params.cid);
+        res.json({ status: 'success', payload: cart });
+    } catch (error) {
+        res.status(404).json({ status: 'error', error: error.message });
     }
 });
 
